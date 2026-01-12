@@ -17,17 +17,13 @@ export default {
       }
 
       // Get the webhook identifier (optional, but good for logging)
-      const webhookIdentifier = request.headers.get("X-Kolide-Webhook-Identifier");
+      const _webhookIdentifier = request.headers.get("X-Kolide-Webhook-Identifier");
 
       // Read the request body
       const bodyText = await request.text();
 
       // Verify the signature
-      const isValid = await verifyKolideSignature(
-        bodyText,
-        signature,
-        env.KOLIDE_WEBHOOK_SECRET
-      );
+      const isValid = await verifyKolideSignature(bodyText, signature, env.KOLIDE_WEBHOOK_SECRET);
 
       if (!isValid) {
         console.error("Invalid signature received");

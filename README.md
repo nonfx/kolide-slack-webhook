@@ -52,11 +52,13 @@ bun run setup-secrets
 ```
 
 This script will:
+
 - Prompt you for your 1Password item references
 - Fetch the secrets using `op` CLI
 - Configure them in Cloudflare Workers
 
 Required secrets:
+
 - `KOLIDE_WEBHOOK_SECRET`: The signing secret from Kolide webhook settings
 - `SLACK_WEBHOOK_URL`: Your Slack incoming webhook URL
 

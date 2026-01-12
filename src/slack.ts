@@ -14,15 +14,6 @@ function getEventEmoji(eventType: string): string {
 }
 
 /**
- * Gets a color for the event type (used in Slack attachments)
- */
-function getEventColor(eventType: string): string {
-  if (eventType.includes("failure") || eventType === "issues.new") return "danger";
-  if (eventType.includes("resolved") || eventType.includes("success")) return "good";
-  return "warning";
-}
-
-/**
  * Formats the event data fields for display
  */
 function formatDataFields(data: Record<string, unknown>): string {
@@ -109,10 +100,7 @@ export function createSlackMessage(payload: KolideWebhookPayload): SlackMessage 
 /**
  * Sends a message to Slack using an incoming webhook
  */
-export async function sendToSlack(
-  webhookUrl: string,
-  message: SlackMessage
-): Promise<void> {
+export async function sendToSlack(webhookUrl: string, message: SlackMessage): Promise<void> {
   const response = await fetch(webhookUrl, {
     method: "POST",
     headers: {

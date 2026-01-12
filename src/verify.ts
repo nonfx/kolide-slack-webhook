@@ -9,7 +9,7 @@
 export async function verifyKolideSignature(
   requestBody: string,
   signature: string,
-  secret: string
+  secret: string,
 ): Promise<boolean> {
   // Encode the secret and body as Uint8Arrays
   const encoder = new TextEncoder();
@@ -22,7 +22,7 @@ export async function verifyKolideSignature(
     secretData,
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   // Generate the signature
