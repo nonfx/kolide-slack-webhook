@@ -8,3 +8,9 @@ compatibility_date = "2024-01-01"
 # Secrets to configure (use: wrangler secret put <NAME>)
 # - KOLIDE_WEBHOOK_SECRET: The signing secret from Kolide webhook settings
 # - SLACK_WEBHOOK_URL: Your Slack incoming webhook URL
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
