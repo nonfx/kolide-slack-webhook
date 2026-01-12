@@ -1,0 +1,10 @@
+name = "kolide-slack-webhook"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Configure your Cloudflare account_id here or set CLOUDFLARE_ACCOUNT_ID environment variable
+# account_id = "your-account-id-here"
+
+# Secrets to configure (use: wrangler secret put <NAME>)
+# - KOLIDE_WEBHOOK_SECRET: The signing secret from Kolide webhook settings
+# - SLACK_WEBHOOK_URL: Your Slack incoming webhook URL
