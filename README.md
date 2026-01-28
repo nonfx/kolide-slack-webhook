@@ -1,12 +1,13 @@
 # Kolide Slack Webhook
 
-A Cloudflare Worker that receives webhook events from Kolide and forwards them to Slack with rich formatting.
+A Cloudflare Worker that receives webhook events from Kolide, creates Linear tickets, and forwards them to Slack with rich formatting.
 
 ## Features
 
 - Receives all Kolide webhook events (device trust changes, issues, authentication, etc.)
+- Creates Linear tickets automatically for specific events (issues, exemption requests, registration requests)
 - Verifies webhook signatures using SHA256 HMAC
-- Sends beautifully formatted messages to Slack using Block Kit
+- Sends beautifully formatted messages to Slack using Block Kit with Linear ticket links
 - Runs on Cloudflare Workers (serverless, globally distributed)
 - Built with Bun and TypeScript
 
@@ -17,6 +18,7 @@ A Cloudflare Worker that receives webhook events from Kolide and forwards them t
 - Cloudflare account with Workers enabled
 - Kolide account with admin access
 - Slack workspace with webhook permissions
+- Linear account with API access
 
 ## Setup
 
@@ -35,15 +37,24 @@ bun install
 5. Copy the webhook URL (it looks like `https://hooks.slack.com/services/...`)
 6. Store it in 1Password
 
-### 3. Configure Kolide Webhook
+### 3. Configure Linear API
+
+1. Log into Linear
+2. Go to Settings → API → Personal API Keys
+3. Click "Create new key" and give it a descriptive name (e.g., "Kolide Webhook")
+4. Copy the API key and store it in 1Password
+5. Find your Team ID by navigating to your team in Linear and copying the team identifier from the URL or settings
+6. Store the Team ID in 1Password
+
+### 4. Configure Kolide Webhook
 
 1. Log into Kolide as an admin
 2. Go to Settings → Developers → Webhooks
 3. Click "Add Endpoint"
 4. You'll get a signing secret - store this in 1Password
-5. After deploying (step 5), come back and enter your worker URL
+5. After deploying (step 6), come back and enter your worker URL
 
-### 4. Set Up Secrets
+### 5. Set Up Secrets
 
 Store your secrets in 1Password with `op://` references, then run:
 
@@ -61,8 +72,10 @@ Required secrets:
 
 - `KOLIDE_WEBHOOK_SECRET`: The signing secret from Kolide webhook settings
 - `SLACK_WEBHOOK_URL`: Your Slack incoming webhook URL
+- `LINEAR_API_KEY`: Your Linear API key
+- `LINEAR_TEAM_ID`: Your Linear team ID
 
-### 5. Deploy to Cloudflare Workers
+### 6. Deploy to Cloudflare Workers
 
 First, authenticate with Cloudflare:
 
@@ -78,7 +91,7 @@ bun run deploy
 
 After deployment, you'll get a worker URL like `https://kolide-slack-webhook.your-subdomain.workers.dev`
 
-### 6. Configure Kolide Webhook URL
+### 7. Configure Kolide Webhook URL
 
 Go back to Kolide webhook settings and enter your worker URL.
 
@@ -126,7 +139,8 @@ bun run type-check
 │   ├── index.ts      # Main Cloudflare Worker handler
 │   ├── types.ts      # TypeScript type definitions
 │   ├── verify.ts     # Webhook signature verification
-│   └── slack.ts      # Slack message formatting
+│   ├── slack.ts      # Slack message formatting
+│   └── linear.ts     # Linear ticket creation
 ├── wrangler.toml     # Cloudflare Workers configuration
 ├── package.json      # Dependencies and scripts
 └── setup-secrets.sh  # Secret management script
@@ -145,6 +159,20 @@ The webhook handles all Kolide event types:
 - `requests.issue_exemption` / `requests.registration` - User requests
 
 Each event is formatted with appropriate emojis and colors in Slack.
+
+### Linear Ticket Creation
+
+Linear tickets are automatically created for the following event types:
+
+- `issues.new` - New compliance issues detected
+- `requests.issue_exemption` - Users requesting exemptions
+- `requests.registration` - Device registration requests
+
+The ticket includes:
+- Event details and timestamp
+- Device and user information (when available)
+- Full event data in the description
+- Link to the ticket is included in the Slack message
 
 ## Security
 

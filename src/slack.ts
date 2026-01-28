@@ -59,7 +59,10 @@ function formatEventTitle(event: string): string {
 /**
  * Creates a rich Slack message from a Kolide webhook payload
  */
-export function createSlackMessage(payload: KolideWebhookPayload): SlackMessage {
+export function createSlackMessage(
+  payload: KolideWebhookPayload,
+  linearTicketUrl?: string
+): SlackMessage {
   const emoji = getEventEmoji(payload.event);
   const title = formatEventTitle(payload.event);
   const dataFields = formatDataFields(payload.data);
@@ -68,33 +71,47 @@ export function createSlackMessage(payload: KolideWebhookPayload): SlackMessage 
     timeStyle: "short",
   });
 
-  return {
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `${emoji} ${title}`,
-        },
+  const blocks: SlackMessage["blocks"] = [
+    {
+      type: "header",
+      text: {
+        type: "plain_text",
+        text: `${emoji} ${title}`,
       },
-      {
-        type: "section",
-        text: {
+    },
+  ];
+
+  // Add Linear ticket link if available
+  if (linearTicketUrl) {
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `🎫 *Linear Ticket:* <${linearTicketUrl}|View Ticket>`,
+      },
+    });
+  }
+
+  blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: dataFields || "_No additional data_",
+      },
+    },
+    {
+      type: "context",
+      elements: [
+        {
           type: "mrkdwn",
-          text: dataFields || "_No additional data_",
+          text: `Event ID: \`${payload.id}\` | Time: ${timestamp}`,
         },
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `Event ID: \`${payload.id}\` | Time: ${timestamp}`,
-          },
-        ],
-      },
-    ],
-  };
+      ],
+    }
+  );
+
+  return { blocks };
 }
 
 /**

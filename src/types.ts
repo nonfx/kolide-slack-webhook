@@ -25,6 +25,8 @@ export interface KolideWebhookPayload {
 export interface Env {
   KOLIDE_WEBHOOK_SECRET: string;
   SLACK_WEBHOOK_URL: string;
+  LINEAR_API_KEY: string;
+  LINEAR_TEAM_ID: string;
 }
 
 // Slack message block types

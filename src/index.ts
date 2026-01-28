@@ -1,6 +1,7 @@
 import type { Env, KolideWebhookPayload } from "./types.ts";
 import { verifyKolideSignature } from "./verify.ts";
 import { createSlackMessage, sendToSlack } from "./slack.ts";
+import { createLinearTicket, shouldCreateLinearTicket } from "./linear.ts";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -48,8 +49,28 @@ export default {
       // Log the event for debugging
       console.log(`Received Kolide event: ${payload.event} (${payload.id})`);
 
+      // Create Linear ticket if applicable
+      let linearTicketUrl: string | undefined;
+      if (shouldCreateLinearTicket(payload.event)) {
+        try {
+          console.log(`Creating Linear ticket for event ${payload.id}`);
+          const linearResponse = await createLinearTicket(
+            env.LINEAR_API_KEY,
+            env.LINEAR_TEAM_ID,
+            payload
+          );
+          linearTicketUrl = linearResponse.issue.url;
+          console.log(
+            `Linear ticket created: ${linearResponse.issue.identifier} - ${linearTicketUrl}`
+          );
+        } catch (error) {
+          console.error("Failed to create Linear ticket:", error);
+          // Continue to send Slack message even if Linear fails
+        }
+      }
+
       // Create and send Slack message
-      const slackMessage = createSlackMessage(payload);
+      const slackMessage = createSlackMessage(payload, linearTicketUrl);
       await sendToSlack(env.SLACK_WEBHOOK_URL, slackMessage);
 
       console.log(`Successfully forwarded event ${payload.id} to Slack`);

@@ -8,6 +8,8 @@ compatibility_date = "2024-01-01"
 # Secrets to configure (use: wrangler secret put <NAME>)
 # - KOLIDE_WEBHOOK_SECRET: The signing secret from Kolide webhook settings
 # - SLACK_WEBHOOK_URL: Your Slack incoming webhook URL
+# - LINEAR_API_KEY: Your Linear API key
+# - LINEAR_TEAM_ID: Your Linear team ID
 
 [observability.logs]
 enabled = true
