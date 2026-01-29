@@ -181,6 +181,33 @@ The ticket includes:
 - No secrets are committed to version control
 - Invalid signatures return 401 Unauthorized
 
+## Testing
+
+You can test the webhook integration with a simulated Kolide event:
+
+```bash
+# Create a test script
+cat > test-webhook.sh << 'EOF'
+#!/bin/bash
+PAYLOAD='{"event":"issues.new","id":"test-'$(date +%s)'","timestamp":"'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'","data":{"issue_id":123456,"title":"Test Issue","device":{"id":1,"name":"Test-Device"},"check":{"id":1,"name":"Test Check","tags":["TEST"]}}}'
+SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$KOLIDE_WEBHOOK_SECRET" | sed 's/^.* //')
+curl -X POST https://kolide-slack-webhook.non-functional.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "Authorization: $SIGNATURE" \
+  -H "X-Kolide-Webhook-Identifier: test-$(date +%s)" \
+  -d "$PAYLOAD"
+EOF
+
+chmod +x test-webhook.sh
+
+# Run the test (replace with your actual worker URL and secret)
+KOLIDE_WEBHOOK_SECRET="your-secret-here" ./test-webhook.sh
+```
+
+After running the test, check:
+- Linear for a new ticket in your configured team
+- Slack for a message with the Linear ticket link
+
 ## Troubleshooting
 
 ### Webhook verification fails
@@ -192,13 +219,22 @@ The ticket includes:
 
 - Verify `SLACK_WEBHOOK_URL` is correct
 - Check the Slack channel permissions
-- Use `bun run tail` to see error logs
+- Use `CLOUDFLARE_ACCOUNT_ID=your-account-id bun run tail` to see error logs
+
+### Linear ticket creation fails
+
+- Verify `LINEAR_API_KEY` is valid (test at https://linear.app/settings/api)
+- Ensure `LINEAR_TEAM_ID` is a UUID, not the team key/name
+  - Get team UUID: `curl -X POST https://api.linear.app/graphql -H "Authorization: YOUR_API_KEY" -d '{"query":"{ teams { nodes { id name key } } }"}'`
+- Check worker logs for detailed error messages
+- Graceful fallback: If Linear fails, Slack notification will still be sent
 
 ### Deployment issues
 
 - Ensure you're logged into Cloudflare: `bunx wrangler login`
 - Check that your Cloudflare account has Workers enabled
-- Verify secrets are set: `bunx wrangler secret list`
+- Verify secrets are set: `CLOUDFLARE_ACCOUNT_ID=your-account-id bunx wrangler secret list`
+- Set account ID via environment variable if you have multiple accounts
 
 ## License
 

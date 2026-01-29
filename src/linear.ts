@@ -18,8 +18,32 @@ export interface LinearIssueResponse {
  */
 function extractDeviceUserInfo(data: Record<string, unknown>): string {
   // Try to find device or user information
-  const deviceName = data.device_name || data.device || data.hostname;
-  const userName = data.user_name || data.user || data.email;
+  let deviceName: string | undefined;
+  if (data.device_name) {
+    deviceName = String(data.device_name);
+  } else if (data.device && typeof data.device === "object" && data.device !== null) {
+    deviceName = (data.device as Record<string, unknown>).name
+      ? String((data.device as Record<string, unknown>).name)
+      : undefined;
+  } else if (data.device) {
+    deviceName = String(data.device);
+  } else if (data.hostname) {
+    deviceName = String(data.hostname);
+  }
+
+  let userName: string | undefined;
+  if (data.user_name) {
+    userName = String(data.user_name);
+  } else if (data.user && typeof data.user === "object" && data.user !== null) {
+    userName = (data.user as Record<string, unknown>).name
+      ? String((data.user as Record<string, unknown>).name)
+      : undefined;
+  } else if (data.user) {
+    userName = String(data.user);
+  } else if (data.email) {
+    userName = String(data.email);
+  }
+
   const issueName = data.issue_name || data.title || data.name;
 
   const parts: string[] = [];
