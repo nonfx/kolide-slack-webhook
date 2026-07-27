@@ -67,6 +67,8 @@ export default {
           console.error("Failed to create Linear ticket:", error);
           // Continue to send Slack message even if Linear fails
         }
+      } else {
+        console.log(`Skipping Linear ticket for unsupported event type: ${payload.event}`);
       }
 
       // Create and send Slack message
