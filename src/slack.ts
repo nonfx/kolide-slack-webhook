@@ -1,3 +1,4 @@
+import { toConsoleUrls } from "./console-urls.ts";
 import type { KolideWebhookPayload, SlackMessage } from "./types.ts";
 
 /**
@@ -33,9 +34,9 @@ function formatDataFields(data: Record<string, unknown>): string {
     let formattedValue: string;
     if (typeof value === "string" && value.startsWith("http")) {
       // Make URLs clickable
-      formattedValue = `<${value}|View>`;
+      formattedValue = `<${toConsoleUrls(value)}|View>`;
     } else if (typeof value === "object") {
-      formattedValue = JSON.stringify(value);
+      formattedValue = toConsoleUrls(JSON.stringify(value));
     } else {
       formattedValue = String(value);
     }
