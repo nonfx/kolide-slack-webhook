@@ -34,9 +34,9 @@ function formatDataFields(data: Record<string, unknown>): string {
     let formattedValue: string;
     if (typeof value === "string" && value.startsWith("http")) {
       // Make URLs clickable
-      formattedValue = `<${toConsoleUrls(value)}|View>`;
+      formattedValue = `<${value}|View>`;
     } else if (typeof value === "object") {
-      formattedValue = toConsoleUrls(JSON.stringify(value));
+      formattedValue = JSON.stringify(value);
     } else {
       formattedValue = String(value);
     }
@@ -44,7 +44,7 @@ function formatDataFields(data: Record<string, unknown>): string {
     fields.push(`*${formattedKey}:* ${formattedValue}`);
   }
 
-  return fields.join("\n");
+  return toConsoleUrls(fields.join("\n"));
 }
 
 /**

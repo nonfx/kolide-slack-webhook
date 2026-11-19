@@ -18,6 +18,7 @@ test("device and owner links open the Kolide console", () => {
     data: {
       device_id: 985671,
       device_url: "https://api.kolide.com/devices/985671",
+      description: "Registered https://api.kolide.com/devices/985671",
       registered_owner: { id: 764854, owner_url: "https://api.kolide.com/people/764854" },
     },
   });
