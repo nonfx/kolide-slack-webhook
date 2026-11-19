@@ -1,3 +1,4 @@
+import { toConsoleUrls } from "./console-urls.ts";
 import type { KolideWebhookPayload } from "./types.ts";
 
 /**
@@ -117,7 +118,7 @@ function createTicketDescription(payload: KolideWebhookPayload): string {
     }
   }
 
-  return lines.join("\n");
+  return toConsoleUrls(lines.join("\n"));
 }
 
 /**

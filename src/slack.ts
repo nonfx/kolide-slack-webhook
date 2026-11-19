@@ -1,3 +1,4 @@
+import { toConsoleUrls } from "./console-urls.ts";
 import type { KolideWebhookPayload, SlackMessage } from "./types.ts";
 
 /**
@@ -43,7 +44,7 @@ function formatDataFields(data: Record<string, unknown>): string {
     fields.push(`*${formattedKey}:* ${formattedValue}`);
   }
 
-  return fields.join("\n");
+  return toConsoleUrls(fields.join("\n"));
 }
 
 /**
